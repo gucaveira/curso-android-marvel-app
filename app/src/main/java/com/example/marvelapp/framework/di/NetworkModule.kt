@@ -1,10 +1,12 @@
 package com.example.marvelapp.framework.di
 
+import com.example.core.data.network.AuthorizationInterceptor
 import com.example.marvelapp.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.util.*
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,7 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val TIME_OUT = 15L
+    private const val TIMEOUT_SECONDS = 15L
 
     @Provides
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
@@ -29,13 +31,24 @@ object NetworkModule {
     }
 
     @Provides
+    fun provideAuthorizationInterceptor(): AuthorizationInterceptor {
+        return AuthorizationInterceptor(
+            publicKey = BuildConfig.PUBLIC_KEY,
+            privateKey = BuildConfig.PRIVATE_KEY,
+            calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        )
+    }
+
+    @Provides
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
+        authorizationInterceptor: AuthorizationInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .readTimeout(TIME_OUT, TimeUnit.SECONDS)
-            .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
+            .addInterceptor(authorizationInterceptor)
+            .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build()
     }
 
