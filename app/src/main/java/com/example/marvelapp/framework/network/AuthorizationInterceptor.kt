@@ -1,4 +1,4 @@
-package com.example.core.data.network
+package com.example.marvelapp.framework.network
 
 import java.math.BigInteger
 import java.security.MessageDigest
