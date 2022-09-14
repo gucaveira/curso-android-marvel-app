@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
     id 'kotlin-android'
 }
 
@@ -19,7 +20,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('$rootDir/store/marvel_app_key_store.jks')
+            storeFile file("$rootDir/store/marvel_app_key_store.jks")
             storePassword 'marvel@123'
             keyPassword 'marvel@123'
             keyAlias 'marvel-app'
@@ -128,6 +129,10 @@ dependencies {
     // Other Libs
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0-rc02"
+
+    //Firebase
+    implementation platform('com.google.firebase:firebase-bom:30.4.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // Unit tests
     testImplementation project(":testing")
