@@ -13,7 +13,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import com.example.marvelapp.databinding.FragmentCharactersBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -95,6 +94,11 @@ class CharactersFragment : Fragment() {
                 startShimmer()
             } else stopShimmer()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {
