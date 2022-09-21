@@ -1,6 +1,7 @@
 package com.example.core.data.repository
 
-interface CharactersRemoteDataSource<T> {
+import com.example.core.domain.model.CharacterPaging
 
-    suspend fun fetchCharecters(queries: Map<String, String>): T
+interface CharactersRemoteDataSource {
+    suspend fun fetchCharacters(queries: Map<String, String>): CharacterPaging
 }

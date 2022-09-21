@@ -3,8 +3,9 @@ package com.example.marvelapp.framework.paging
 import androidx.paging.PagingSource
 import com.example.core.data.repository.CharactersRemoteDataSource
 import com.example.core.domain.model.Character
+import com.example.core.domain.model.CharacterPaging
 import com.example.factory.response.DataWrapperResponseFactory
-import com.example.marvelapp.framework.network.response.DataWrapperResponse
+import com.example.marvelapp.framework.network.response.toCharacterModel
 import com.exemple.testing.MainCoroutineRule
 import com.exemple.testing.model.CharacterFactory
 import com.exemple.testing.model.CharacterFactory.Hero
@@ -29,7 +30,7 @@ class CharactersPagingSourceTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     @Mock
-    lateinit var remoteDataSource: CharactersRemoteDataSource<DataWrapperResponse>
+    lateinit var remoteDataSource: CharactersRemoteDataSource
 
     private var dataWrapperResponseFactory = DataWrapperResponseFactory()
 
@@ -45,8 +46,11 @@ class CharactersPagingSourceTest {
     @Test
     fun `should return a success load result when load is called`() = runBlockingTest {
         //Arrange
-        whenever(remoteDataSource.fetchCharecters(any()))
-            .thenReturn(dataWrapperResponseFactory.create())
+        val data = dataWrapperResponseFactory.create().data
+        val characters = data.results.map { it.toCharacterModel() }
+        
+        whenever(remoteDataSource.fetchCharacters(any()))
+            .thenReturn(CharacterPaging(data.offset, data.total, characters))
 
         //Act
         val result = charactersPagingSource
@@ -78,7 +82,7 @@ class CharactersPagingSourceTest {
     fun `should return a errror load result when load is called`() = runBlockingTest {
         //arrange
         val exception = RuntimeException()
-        whenever(remoteDataSource.fetchCharecters(any())).thenThrow(exception)
+        whenever(remoteDataSource.fetchCharacters(any())).thenThrow(exception)
 
         //act
         val result = charactersPagingSource.load(
