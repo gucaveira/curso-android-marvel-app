@@ -26,7 +26,7 @@ class DetailViewModel @Inject constructor(
 
     private fun Flow<ResultStatus<List<Comic>>>.watchStatus() = viewModelScope.launch {
         collect { status ->
-            when (status) {
+            _uiState.value = when (status) {
                 // Sempre que for uma data Class deve chamar o is. Já para object não é necessário.
                 // Isso pq o object não tem tipo e valor interno.
                 ResultStatus.Loading -> UiState.Loading
