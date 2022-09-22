@@ -2,14 +2,12 @@ package com.example.marvelapp.presentation.detail
 
 import android.os.Bundle
 import android.transition.TransitionInflater
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.example.marvelapp.R
 import com.example.marvelapp.databinding.FragmentDetailBinding
 import com.example.marvelapp.framework.imageLoader.ImageLoader
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,19 +38,21 @@ class DetailFragment : Fragment() {
         val detailViewArg = args.detailViewArg
         binding.imageCharacter.run {
             transitionName = detailViewArg.name
-            imageLoader.load(this, detailViewArg.imageUrl, R.drawable.ic_img_loading_error)
+            imageLoader.load(this, detailViewArg.imageUrl)
         }
 
         setSharedElementTransitionOnEnter()
 
         viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-            val logResult = when(uiState){
-                DetailViewModel.UiState.Loading -> "Loading comics..."
-                is DetailViewModel.UiState.Success -> uiState.comics.toString()
-                is DetailViewModel.UiState.Error -> "Error when loading comics"
+            when (uiState) {
+                DetailViewModel.UiState.Loading -> {}
+                is DetailViewModel.UiState.Success -> binding.RecyclerParentDetail.run {
+                    setHasFixedSize(true)
+                    adapter = DetailParentAdapter(uiState.detailParentList, imageLoader)
+                }
+                is DetailViewModel.UiState.Error -> {}
             }
 
-            Log.d(DetailFragment::class.simpleName, logResult)
         }
 
 
