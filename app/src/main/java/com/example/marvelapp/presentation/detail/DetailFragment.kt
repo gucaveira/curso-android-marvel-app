@@ -5,6 +5,7 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -44,25 +45,51 @@ class DetailFragment : Fragment() {
         setSharedElementTransitionOnEnter()
 
         viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-            when (uiState) {
-                DetailViewModel.UiState.Loading -> {}
-                is DetailViewModel.UiState.Success -> binding.RecyclerParentDetail.run {
-                    setHasFixedSize(true)
-                    adapter = DetailParentAdapter(uiState.detailParentList, imageLoader)
+            binding.flipperDetail.displayedChild = when (uiState) {
+                DetailViewModel.UiState.Loading -> {
+                    setShimmerVisibility(true)
+                    FLIPPER_CHILD_POSITION_LOADING
                 }
-                is DetailViewModel.UiState.Error -> {}
+                is DetailViewModel.UiState.Success -> {
+                    setRecyclerView(uiState)
+                    setShimmerVisibility(false)
+                    FLIPPER_CHILD_POSITION_DETAIL
+                }
+                is DetailViewModel.UiState.Error -> {
+                    binding.includeErrorView.buttonRetry.setOnClickListener {
+                        viewModel.getCharacterCategories(detailViewArg.characterId)
+                    }
+                    setShimmerVisibility(false)
+                    FLIPPER_CHILD_POSITION_ERROR
+                }
+                DetailViewModel.UiState.Empty -> FLIPPER_CHILD_POSITION_EMPTY
             }
 
         }
 
+        viewModel.getCharacterCategories(detailViewArg.characterId)
+    }
 
-        viewModel.geComics(detailViewArg.characterId)
+    private fun setRecyclerView(uiState: DetailViewModel.UiState.Success) {
+        binding.RecyclerParentDetail.run {
+            setHasFixedSize(true)
+            adapter = DetailParentAdapter(uiState.detailParentList, imageLoader)
+        }
+    }
+
+    private fun setShimmerVisibility(visibility: Boolean) {
+        binding.includeLoadingState.shimmerData.run {
+            isVisible = visibility
+            if (visibility) {
+                startShimmer()
+            } else stopShimmer()
+        }
     }
 
     // Define a animação de transição como "move"
     private fun setSharedElementTransitionOnEnter() {
-        TransitionInflater.from(requireContext())
-            .inflateTransition(android.R.transition.move).apply {
+        TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+            .apply {
                 sharedElementEnterTransition = this
             }
     }
@@ -72,4 +99,10 @@ class DetailFragment : Fragment() {
         _binding = null
     }
 
+    companion object {
+        private const val FLIPPER_CHILD_POSITION_LOADING = 0
+        private const val FLIPPER_CHILD_POSITION_DETAIL = 1
+        private const val FLIPPER_CHILD_POSITION_ERROR = 2
+        private const val FLIPPER_CHILD_POSITION_EMPTY = 3
+    }
 }

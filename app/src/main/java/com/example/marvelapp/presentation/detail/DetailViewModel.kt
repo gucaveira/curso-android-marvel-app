@@ -22,7 +22,7 @@ class DetailViewModel @Inject constructor(
     private val _uiState = MutableLiveData<UiState>()
     val uiState: LiveData<UiState> get() = _uiState
 
-    fun geComics(characterId: Int) = viewModelScope.launch {
+    fun getCharacterCategories(characterId: Int) = viewModelScope.launch {
         getCharacterCategoriesUseCase(
             GetCharacterCategoriesUseCase.GetComicsParams(characterId)
         ).watchStatus()
@@ -37,30 +37,25 @@ class DetailViewModel @Inject constructor(
                     ResultStatus.Loading -> UiState.Loading
                     is ResultStatus.Success -> {
                         val detailParentList = mutableListOf<DetailParentViewEnd>()
-
                         val comics = status.data.first
-                        if (comics.isNotEmpty()) {
-                            comics.map {
-                                DetailChildViewEnd(it.id, it.imageUrl)
-                            }.also {
-                                detailParentList.add(
-                                    DetailParentViewEnd(R.string.details_comics_category, it)
-                                )
-                            }
-                        }
-
                         val events = status.data.second
-                        if (events.isNotEmpty()) {
-                            events.map {
-                                DetailChildViewEnd(it.id, it.imageUrl)
-                            }.also {
-                                detailParentList.add(
-                                    DetailParentViewEnd(R.string.details_events_category, it)
-                                )
-                            }
+
+                        if (comics.isNotEmpty()) {
+                            comics.map { DetailChildViewEnd(it.id, it.imageUrl) }
+                                .also { detailParentList.add(
+                                    DetailParentViewEnd(R.string.details_comics_category, it)) }
                         }
 
-                        UiState.Success(detailParentList)
+                        if (events.isNotEmpty()) {
+                            events.map { DetailChildViewEnd(it.id, it.imageUrl) }
+                                .also { detailParentList.add(
+                                    DetailParentViewEnd(R.string.details_events_category, it)) }
+                        }
+
+                        if (detailParentList.isNotEmpty()) {
+                            UiState.Success(detailParentList)
+                        } else UiState.Empty
+
                     }
                     is ResultStatus.Error -> UiState.Error
                 }
@@ -71,5 +66,6 @@ class DetailViewModel @Inject constructor(
         object Loading : UiState()
         data class Success(val detailParentList: List<DetailParentViewEnd>) : UiState()
         object Error : UiState()
+        object Empty : UiState()
     }
 }
