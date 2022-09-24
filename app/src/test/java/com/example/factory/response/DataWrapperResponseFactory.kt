@@ -14,7 +14,7 @@ class DataWrapperResponseFactory {
             total = 2,
             results = listOf(
                 CharacterResponse(
-                    id = "1011334",
+                    id = 1011334,
                     name = "3-D Man",
                     thumbnail = ThumbnailResponse(
                         path = "http://i.annihil.us/u/prod/marvel/i/mg/c/e0/535fecbbb9784",
@@ -22,7 +22,7 @@ class DataWrapperResponseFactory {
                     )
                 ),
                 CharacterResponse(
-                    id = "1017100",
+                    id = 1017100,
                     name = "A-Bomb (HAS)",
                     thumbnail = ThumbnailResponse(
                         path = "http://i.annihil.us/u/prod/marvel/i/mg/c/e0/535fecbbb9784",
