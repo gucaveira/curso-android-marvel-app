@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import com.example.core.data.repository.CharactersRemoteDataSource
 import com.example.core.domain.model.Character
 import com.example.core.domain.model.CharacterPaging
-import com.example.factory.response.DataWrapperResponseFactory
+import com.example.marvelapp.factory.response.CharacterPagingFactory
 import com.example.marvelapp.framework.network.response.toCharacterModel
 import com.exemple.testing.MainCoroutineRule
 import com.exemple.testing.model.CharacterFactory
@@ -32,7 +32,7 @@ class CharactersPagingSourceTest {
     @Mock
     lateinit var remoteDataSource: CharactersRemoteDataSource
 
-    private var dataWrapperResponseFactory = DataWrapperResponseFactory()
+    private var characterPagingFactory = CharacterPagingFactory()
 
     private val charactersFactory = CharacterFactory()
 
@@ -46,11 +46,8 @@ class CharactersPagingSourceTest {
     @Test
     fun `should return a success load result when load is called`() = runBlockingTest {
         //Arrange
-        val data = dataWrapperResponseFactory.create().data
-        val characters = data.results.map { it.toCharacterModel() }
-        
         whenever(remoteDataSource.fetchCharacters(any()))
-            .thenReturn(CharacterPaging(data.offset, data.total, characters))
+            .thenReturn(characterPagingFactory.create())
 
         //Act
         val result = charactersPagingSource
