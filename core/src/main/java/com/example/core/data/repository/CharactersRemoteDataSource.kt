@@ -1,6 +1,11 @@
 package com.example.core.data.repository
 
-interface CharactersRemoteDataSource<T> {
+import com.example.core.domain.model.CharacterPaging
+import com.example.core.domain.model.Comic
+import com.example.core.domain.model.Event
 
-    suspend fun fetchCharecters(queries: Map<String, String>): T
+interface CharactersRemoteDataSource {
+    suspend fun fetchCharacters(queries: Map<String, String>): CharacterPaging
+    suspend fun fetchComics(charactersId: Int): List<Comic>
+    suspend fun fetchEvents(charactersId: Int): List<Event>
 }
