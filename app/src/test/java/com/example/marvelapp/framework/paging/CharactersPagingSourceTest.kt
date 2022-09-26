@@ -3,15 +3,14 @@ package com.example.marvelapp.framework.paging
 import androidx.paging.PagingSource
 import com.example.core.data.repository.CharactersRemoteDataSource
 import com.example.core.domain.model.Character
-import com.example.factory.response.DataWrapperResponseFactory
-import com.example.marvelapp.framework.network.response.DataWrapperResponse
+import com.example.marvelapp.factory.response.CharacterPagingFactory
 import com.exemple.testing.MainCoroutineRule
 import com.exemple.testing.model.CharacterFactory
 import com.exemple.testing.model.CharacterFactory.Hero
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -29,9 +28,9 @@ class CharactersPagingSourceTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     @Mock
-    lateinit var remoteDataSource: CharactersRemoteDataSource<DataWrapperResponse>
+    lateinit var remoteDataSource: CharactersRemoteDataSource
 
-    private var dataWrapperResponseFactory = DataWrapperResponseFactory()
+    private var characterPagingFactory = CharacterPagingFactory()
 
     private val charactersFactory = CharacterFactory()
 
@@ -43,10 +42,10 @@ class CharactersPagingSourceTest {
     }
 
     @Test
-    fun `should return a success load result when load is called`() = runBlockingTest {
+    fun `should return a success load result when load is called`() = runTest {
         //Arrange
-        whenever(remoteDataSource.fetchCharecters(any()))
-            .thenReturn(dataWrapperResponseFactory.create())
+        whenever(remoteDataSource.fetchCharacters(any()))
+            .thenReturn(characterPagingFactory.create())
 
         //Act
         val result = charactersPagingSource
@@ -75,10 +74,10 @@ class CharactersPagingSourceTest {
     }
 
     @Test
-    fun `should return a errror load result when load is called`() = runBlockingTest {
+    fun `should return a errror load result when load is called`() = runTest {
         //arrange
         val exception = RuntimeException()
-        whenever(remoteDataSource.fetchCharecters(any())).thenThrow(exception)
+        whenever(remoteDataSource.fetchCharacters(any())).thenThrow(exception)
 
         //act
         val result = charactersPagingSource.load(
