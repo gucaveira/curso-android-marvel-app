@@ -10,9 +10,9 @@ import com.example.core.usecase.GetCharacterCategoriesUseCase
 import com.example.core.usecase.base.ResultStatus
 import com.example.marvelapp.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -24,7 +24,7 @@ class DetailViewModel @Inject constructor(
 
     fun getCharacterCategories(characterId: Int) = viewModelScope.launch {
         getCharacterCategoriesUseCase(
-            GetCharacterCategoriesUseCase.GetComicsParams(characterId)
+            GetCharacterCategoriesUseCase.GetCategoriesParams(characterId)
         ).watchStatus()
     }
 

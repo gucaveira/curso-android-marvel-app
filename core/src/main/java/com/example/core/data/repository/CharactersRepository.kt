@@ -6,9 +6,7 @@ import com.example.core.domain.model.Comic
 import com.example.core.domain.model.Event
 
 interface CharactersRepository {
-
     fun getCharacters(query: String): PagingSource<Int, Character>
-
     suspend fun getComics(characterId: Int): List<Comic>
     suspend fun getEvent(characterId: Int): List<Event>
 }
