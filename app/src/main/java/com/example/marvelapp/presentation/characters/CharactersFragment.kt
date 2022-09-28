@@ -70,6 +70,8 @@ class CharactersFragment : Fragment() {
 
     private fun initCharactersAdapter() {
         binding.recyclerCharacters.run {
+            postponeEnterTransition()
+
             // quando os item do lista tiverem o mesmo tamanho em dimensões,
             // usar essa função para otimizar a listagem.
             setHasFixedSize(true)
@@ -79,6 +81,11 @@ class CharactersFragment : Fragment() {
             adapter = charactersAdapter.withLoadStateFooter(
                 footer = CharactersLoadStateAdapter(charactersAdapter::retry)
             )
+
+            viewTreeObserver.addOnPreDrawListener {
+                startPostponedEnterTransition()
+                true
+            }
         }
     }
 
