@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
@@ -17,8 +15,8 @@ import com.example.marvelapp.databinding.FragmentCharactersBinding
 import com.example.marvelapp.framework.imageLoader.ImageLoader
 import com.example.marvelapp.presentation.detail.DetailViewArg
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CharactersFragment : Fragment() {
@@ -31,7 +29,19 @@ class CharactersFragment : Fragment() {
     @Inject
     lateinit var imageLoader: ImageLoader
 
-    private lateinit var charactersAdapter: CharactersAdapter
+    private val charactersAdapter: CharactersAdapter by lazy {
+        CharactersAdapter(imageLoader) { character, view ->
+            val extras = FragmentNavigatorExtras(view to character.name)
+
+            val directions = CharactersFragmentDirections
+                .actionCharactersFragmentToDetailFragment(
+                    character.name,
+                    DetailViewArg(character.id, character.name, character.imageUrl)
+                )
+
+            findNavController().navigate(directions, extras)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,28 +56,19 @@ class CharactersFragment : Fragment() {
         initCharactersAdapter()
         observeInitialLoadState()
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.charactersPagingData(query = "").collect { pagingData ->
-                    charactersAdapter.submitData(pagingData)
+        viewModel.state.observe(viewLifecycleOwner) { uiState ->
+            when (uiState) {
+                is CharactersViewModel.UiState.SearchResult -> {
+                    lifecycleScope.launch {
+                        charactersAdapter.submitData(uiState.data)
+                    }
                 }
             }
         }
+        viewModel.searchCharacters()
     }
 
     private fun initCharactersAdapter() {
-        charactersAdapter = CharactersAdapter(imageLoader) { character, view ->
-            val extras = FragmentNavigatorExtras(view to character.name)
-
-            val directions = CharactersFragmentDirections
-                .actionCharactersFragmentToDetailFragment(
-                    character.name,
-                    DetailViewArg(character.id,character.name, character.imageUrl)
-                )
-
-            findNavController().navigate(directions, extras)
-        }
-
         binding.recyclerCharacters.run {
             // quando os item do lista tiverem o mesmo tamanho em dimensões,
             // usar essa função para otimizar a listagem.
