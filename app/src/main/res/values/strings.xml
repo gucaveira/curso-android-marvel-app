@@ -36,4 +36,5 @@
     <string name="about_attribution">Data provided by Marvel. © 2021 Marvel</string>
     <string name="error_loading_data">Error when trying to load data</string>
     <string name="error_add_favorite">Error when trying to add favorite</string>
+    <string name="remove_favorite">Error when trying to remove favorite</string>
 </resources>
