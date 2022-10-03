@@ -4,10 +4,13 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.core.domain.model.Comic
 import com.example.core.usecase.AddFavoriteUseCase
+import com.example.core.usecase.CheckFavoriteUseCase
 import com.example.core.usecase.GetCharacterCategoriesUseCase
+import com.example.core.usecase.RemoveFavoriteUseCase
 import com.example.core.usecase.base.ResultStatus
 import com.example.marvelapp.R
 import com.example.marvelapp.presentation.detail.viewmodel.DetailViewModel
+import com.example.marvelapp.presentation.detail.viewmodel.FavoriteUiActionStateLiveData
 import com.example.marvelapp.presentation.detail.viewmodel.UiActionStateLiveData
 import com.exemple.testing.MainCoroutineRule
 import com.exemple.testing.model.CharacterFactory
@@ -44,8 +47,18 @@ class DetailViewModelTest {
     @Mock
     private lateinit var addFavoriteUseCase: AddFavoriteUseCase
 
+
+    @Mock
+    private lateinit var checkFavoriteUseCase: CheckFavoriteUseCase
+
+    @Mock
+    private lateinit var removeFavoriteUseCase: RemoveFavoriteUseCase
+
     @Mock
     private lateinit var uiStateObserver: Observer<UiActionStateLiveData.UiState>
+
+    @Mock
+    private lateinit var favoriteUiActionStateObserver: Observer<FavoriteUiActionStateLiveData.UiState>
 
     private val character = CharacterFactory().create(CharacterFactory.Hero.ThreeDMan)
     private val comics = listOf(ComicsFactory().create(ComicsFactory.FakeComic.FakeComic1))
@@ -58,10 +71,13 @@ class DetailViewModelTest {
         viewModel = DetailViewModel(
             getCharacterCategoriesUseCase,
             addFavoriteUseCase,
+            checkFavoriteUseCase,
+            removeFavoriteUseCase,
             mainCoroutineRule.testDispatcherProvider
         ).apply {
 
             categories.state.observeForever(uiStateObserver)
+            favorite.state.observeForever(favoriteUiActionStateObserver)
         }
     }
 
@@ -180,5 +196,43 @@ class DetailViewModelTest {
 
             //Assert
             verify(uiStateObserver).onChanged(isA<UiActionStateLiveData.UiState.Error>())
+        }
+
+    @Test
+    fun `should notify favorite_uiState with filled favorite icon when check favorite returns true`() =
+        runTest {
+            // Arrange
+            whenever(checkFavoriteUseCase(any())).thenReturn(
+                flowOf(
+                    ResultStatus.Success(true)
+                )
+            )
+            // Action
+            viewModel.favorite.checkFavorite(character.id)
+
+            // Assert
+            verify(favoriteUiActionStateObserver).onChanged(isA<FavoriteUiActionStateLiveData.UiState.Icon>())
+            val uiState =
+                viewModel.favorite.state.value as FavoriteUiActionStateLiveData.UiState.Icon
+            assertEquals(R.drawable.ic_favorite_checked, uiState.icon)
+        }
+
+    @Test
+    fun `should notify favorite_uiState with not filled favorite icon when check favorite returns false`() =
+        runTest {
+            // Arrange
+            whenever(checkFavoriteUseCase(any())).thenReturn(
+                flowOf(
+                    ResultStatus.Success(false)
+                )
+            )
+            // Action
+            viewModel.favorite.checkFavorite(character.id)
+
+            // Assert
+            verify(favoriteUiActionStateObserver).onChanged(isA<FavoriteUiActionStateLiveData.UiState.Icon>())
+            val uiState =
+                viewModel.favorite.state.value as FavoriteUiActionStateLiveData.UiState.Icon
+            assertEquals(R.drawable.ic_favorite_unchecked, uiState.icon)
         }
 }
