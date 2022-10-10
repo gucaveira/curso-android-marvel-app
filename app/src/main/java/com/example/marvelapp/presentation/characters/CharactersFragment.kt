@@ -13,6 +13,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import com.example.marvelapp.databinding.FragmentCharactersBinding
 import com.example.marvelapp.framework.imageLoader.ImageLoader
+import com.example.marvelapp.presentation.characters.adapter.CharactersAdapter
+import com.example.marvelapp.presentation.characters.adapter.CharactersLoadMoreStateAdapter
+import com.example.marvelapp.presentation.characters.adapter.CharactersRefreshStateAdapter
 import com.example.marvelapp.presentation.detail.DetailViewArg
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -29,23 +32,26 @@ class CharactersFragment : Fragment() {
     @Inject
     lateinit var imageLoader: ImageLoader
 
+    private val headerAdapter: CharactersRefreshStateAdapter by lazy {
+        CharactersRefreshStateAdapter(
+            charactersAdapter::retry
+        )
+    }
+
     private val charactersAdapter: CharactersAdapter by lazy {
         CharactersAdapter(imageLoader) { character, view ->
             val extras = FragmentNavigatorExtras(view to character.name)
 
-            val directions = CharactersFragmentDirections
-                .actionCharactersFragmentToDetailFragment(
-                    character.name,
-                    DetailViewArg(character.id, character.name, character.imageUrl)
-                )
+            val directions = CharactersFragmentDirections.actionCharactersFragmentToDetailFragment(
+                character.name, DetailViewArg(character.id, character.name, character.imageUrl)
+            )
 
             findNavController().navigate(directions, extras)
         }
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ) = FragmentCharactersBinding.inflate(inflater, container, false).apply {
         _binding = this
     }.root
@@ -78,8 +84,9 @@ class CharactersFragment : Fragment() {
 
             //para voltar sempre para posicao inicial
             //scrollToPosition(0)
-            adapter = charactersAdapter.withLoadStateFooter(
-                footer = CharactersLoadStateAdapter(charactersAdapter::retry)
+            adapter = charactersAdapter.withLoadStateHeaderAndFooter(
+                header = headerAdapter,
+                footer = CharactersLoadMoreStateAdapter(charactersAdapter::retry)
             )
 
             viewTreeObserver.addOnPreDrawListener {
@@ -92,21 +99,36 @@ class CharactersFragment : Fragment() {
     private fun observeInitialLoadState() {
         lifecycleScope.launch {
             charactersAdapter.loadStateFlow.collect { loadState ->
-                binding.flipperCharacters.displayedChild = when (loadState.refresh) {
-                    is LoadState.Loading -> {
+
+                headerAdapter.loadState = loadState.mediator?.refresh?.takeIf {
+                    it is LoadState.Error && charactersAdapter.itemCount > 0
+                } ?: loadState.prepend
+
+
+                binding.flipperCharacters.displayedChild = when {
+
+                    loadState.mediator?.refresh is LoadState.Loading -> {
                         setShimmerVisibility(true)
                         FLIPPER_CHILD_LOADING
                     }
-                    is LoadState.NotLoading -> {
-                        setShimmerVisibility(false)
-                        FLIPPER_CHILD_CHARACTERS
-                    }
-                    is LoadState.Error -> {
+
+                    loadState.mediator?.refresh is LoadState.Error
+                            && charactersAdapter.itemCount == 0 -> {
                         setShimmerVisibility(false)
                         binding.includeViewCharactersErrorState.buttonRetry.setOnClickListener {
                             charactersAdapter.retry()
                         }
                         FLIPPER_CHILD_ERROR
+                    }
+
+                    loadState.source.refresh is LoadState.NotLoading ||
+                            loadState.mediator?.refresh is LoadState.NotLoading -> {
+                        setShimmerVisibility(false)
+                        FLIPPER_CHILD_CHARACTERS
+                    }
+                    else -> {
+                        setShimmerVisibility(false)
+                        FLIPPER_CHILD_CHARACTERS
                     }
                 }
             }
