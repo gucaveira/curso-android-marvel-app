@@ -2,6 +2,9 @@ package com.example.marvelapp.presentation.characters
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -11,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import com.example.marvelapp.R
 import com.example.marvelapp.databinding.FragmentCharactersBinding
 import com.example.marvelapp.framework.imageLoader.ImageLoader
 import com.example.marvelapp.presentation.characters.adapter.CharactersAdapter
@@ -74,6 +78,11 @@ class CharactersFragment : Fragment() {
         viewModel.searchCharacters()
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     private fun initCharactersAdapter() {
         binding.recyclerCharacters.run {
             postponeEnterTransition()
@@ -112,8 +121,7 @@ class CharactersFragment : Fragment() {
                         FLIPPER_CHILD_LOADING
                     }
 
-                    loadState.mediator?.refresh is LoadState.Error
-                            && charactersAdapter.itemCount == 0 -> {
+                    loadState.mediator?.refresh is LoadState.Error && charactersAdapter.itemCount == 0 -> {
                         setShimmerVisibility(false)
                         binding.includeViewCharactersErrorState.buttonRetry.setOnClickListener {
                             charactersAdapter.retry()
@@ -121,8 +129,8 @@ class CharactersFragment : Fragment() {
                         FLIPPER_CHILD_ERROR
                     }
 
-                    loadState.source.refresh is LoadState.NotLoading ||
-                            loadState.mediator?.refresh is LoadState.NotLoading -> {
+                    loadState.source.refresh is LoadState.NotLoading
+                            || loadState.mediator?.refresh is LoadState.NotLoading -> {
                         setShimmerVisibility(false)
                         FLIPPER_CHILD_CHARACTERS
                     }
@@ -147,6 +155,22 @@ class CharactersFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menuSort -> {
+                findNavController().navigate(R.id.action_charactersFragment_to_sortFragment)
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.characters_menu_items, menu)
     }
 
     companion object {

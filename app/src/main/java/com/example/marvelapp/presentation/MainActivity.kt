@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.marvelapp.R
 import com.example.marvelapp.databinding.ActivityMainBinding
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbarApp)
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.navHostContainer) as NavHostFragment
@@ -30,10 +32,12 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.charactersFragment,
                 R.id.favoritesFragment,
-                R.id.aboutFragment
+                R.id.aboutFragment,
+                R.id.sortFragment
             )
         )
 
+        setupActionBarWithNavController(navController, appBarController)
         binding.bottomNaviMain.setupWithNavController(navController)
 
         binding.toolbarApp.setupWithNavController(navController, appBarController)
