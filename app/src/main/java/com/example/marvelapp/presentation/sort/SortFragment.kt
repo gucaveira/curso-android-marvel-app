@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.forEach
 import androidx.fragment.app.viewModels
 import com.example.core.domain.model.SortingType
 import com.example.marvelapp.R
@@ -32,6 +33,7 @@ class SortFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setChipGroupListeners()
+        observerUiState()
     }
 
     private fun setChipGroupListeners() {
@@ -50,6 +52,41 @@ class SortFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private fun observerUiState() {
+        viewModel.state.observe(viewLifecycleOwner) { uiState ->
+            when (uiState) {
+                is SortViewModel.UiState.SortingResult -> {
+                    val orderBy = uiState.storedSorting.first
+                    val order = uiState.storedSorting.second
+
+                    binding.chipGroupOrderBy.forEach {
+                        val chip = it as Chip
+                        if (getOrderByValue(chip.id) == orderBy) {
+                            chip.isChecked = true
+                        }
+                    }
+
+                    binding.chipGroupOrder.forEach {
+                        val chip = it as Chip
+                        if (getOrderValue(chip.id) == order) {
+                            chip.isChecked = true
+                        }
+                    }
+                }
+
+                is SortViewModel.UiState.ApplyState.Loading -> {
+                    binding.flipperApply.displayedChild = FLIPPER_CHILD_PROGRESS
+                }
+
+                is SortViewModel.UiState.ApplyState.Success ->
+                    binding.flipperApply.displayedChild = FLIPPER_CHILD_BUTTON
+
+                is SortViewModel.UiState.ApplyState.Error ->
+                    binding.flipperApply.displayedChild = FLIPPER_CHILD_BUTTON
+            }
+        }
+    }
+
     private fun getOrderByValue(chipId: Int): String = when (chipId) {
         R.id.chip_name -> SortingType.ORDER_BY_NAME.value
         R.id.chip_modified -> SortingType.ORDER_BY_MODIFIED.value
@@ -65,5 +102,10 @@ class SortFragment : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    companion object {
+        private const val FLIPPER_CHILD_BUTTON = 0
+        private const val FLIPPER_CHILD_PROGRESS = 1
     }
 }
