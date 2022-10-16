@@ -16,6 +16,7 @@ import retrofit2.HttpException
 @OptIn(ExperimentalPagingApi::class)
 class CharactersRemoteMediator @Inject constructor(
     private val query: String,
+    private val orderBy: String,
     private val database: AppDatabase,
     private val remoteDataSource: CharactersRemoteDataSource
 ) : RemoteMediator<Int, CharacterEntity>() {
@@ -49,6 +50,10 @@ class CharactersRemoteMediator @Inject constructor(
 
             if (query.isNotBlank()) {
                 queries["nameStartsWith"] = query
+            }
+
+            if (orderBy.isNotBlank()) {
+                queries["orderBy"] = orderBy
             }
 
             val characterPaging = remoteDataSource.fetchCharacters(queries)

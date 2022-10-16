@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingConfig
@@ -27,12 +26,11 @@ class CharactersViewModel @Inject constructor(
     private val action = MutableLiveData<Action>()
     val state: LiveData<UiState> = action
         //distinctUntilChanged so vai notificar quando os dados for diferentes
-        .distinctUntilChanged()
         .switchMap { action ->
             when (action) {
-                is Action.Search -> {
+                is Action.Search, Action.Sort -> {
                     getCharactersUseCase(
-                        GetCharactersUseCase.GetCharactersParams(action.query, getPageConfig())
+                        GetCharactersUseCase.GetCharactersParams("", getPageConfig())
                     ).cachedIn(viewModelScope).map {
                         UiState.SearchResult(it)
                     }.asLiveData(coroutinesDispatchers.main())
@@ -52,11 +50,16 @@ class CharactersViewModel @Inject constructor(
         action.value = Action.Search(query)
     }
 
+    fun applySort() {
+        action.value = Action.Sort
+    }
+
     sealed class UiState {
         data class SearchResult(val data: PagingData<Character>) : UiState()
     }
 
     sealed class Action {
         data class Search(val query: String) : Action()
+        object Sort : Action()
     }
 }
