@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -29,12 +30,14 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CharactersFragment : Fragment() {
+class CharactersFragment : Fragment(), SearchView.OnQueryTextListener {
 
     private var _binding: FragmentCharactersBinding? = null
     private val binding: FragmentCharactersBinding get() = _binding!!
 
     private val viewModel: CharactersViewModel by viewModels()
+
+    private lateinit var searchView: SearchView
 
     @Inject
     lateinit var imageLoader: ImageLoader
@@ -178,11 +181,6 @@ class CharactersFragment : Fragment() {
         })
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menuSort -> {
@@ -197,6 +195,34 @@ class CharactersFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.characters_menu_items, menu)
+
+        val search = menu.findItem(R.id.menu_search)
+        searchView = search.actionView as SearchView
+
+        searchView.run {
+            //Habilita o botao de pesquisa dentro do searchView
+            isSubmitButtonEnabled = true
+
+            setOnQueryTextListener(this@CharactersFragment)
+        }
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return query?.let {
+            viewModel.currentSearchQuery = it
+            viewModel.searchCharacters()
+            true
+        } ?: false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return true
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        searchView.setOnQueryTextListener(null)
     }
 
     companion object {
