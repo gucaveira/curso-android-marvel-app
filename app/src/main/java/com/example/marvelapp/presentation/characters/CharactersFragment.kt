@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -21,6 +23,7 @@ import com.example.marvelapp.presentation.characters.adapter.CharactersAdapter
 import com.example.marvelapp.presentation.characters.adapter.CharactersLoadMoreStateAdapter
 import com.example.marvelapp.presentation.characters.adapter.CharactersRefreshStateAdapter
 import com.example.marvelapp.presentation.detail.DetailViewArg
+import com.example.marvelapp.presentation.sort.SortFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -65,6 +68,7 @@ class CharactersFragment : Fragment() {
 
         initCharactersAdapter()
         observeInitialLoadState()
+        observeSortingData()
 
         viewModel.state.observe(viewLifecycleOwner) { uiState ->
             when (uiState) {
@@ -150,6 +154,27 @@ class CharactersFragment : Fragment() {
                 startShimmer()
             } else stopShimmer()
         }
+    }
+
+    private fun observeSortingData() {
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.charactersFragment)
+        val observer = LifecycleEventObserver { _, event ->
+            val isSortingApplied = navBackStackEntry.savedStateHandle
+                .contains(SortFragment.SORTING_APPLIED_BACK_STACK_KEY)
+
+            if (event == Lifecycle.Event.ON_RESUME && isSortingApplied) {
+                navBackStackEntry.savedStateHandle
+                    .remove<Boolean>(SortFragment.SORTING_APPLIED_BACK_STACK_KEY)
+            }
+        }
+
+        navBackStackEntry.lifecycle.addObserver(observer)
+
+        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                navBackStackEntry.lifecycle.removeObserver(observer)
+            }
+        })
     }
 
     override fun onDestroyView() {
