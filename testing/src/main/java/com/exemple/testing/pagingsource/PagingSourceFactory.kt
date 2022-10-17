@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.core.domain.model.Character
 
+@Deprecated("Clase usada para criar PagingSource no teste unitario ")
 class PagingSourceFactory {
 
     fun create(heroes: List<Character>) = object : PagingSource<Int, Character>() {

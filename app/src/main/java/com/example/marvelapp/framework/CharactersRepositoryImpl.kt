@@ -23,6 +23,7 @@ class CharactersRepositoryImpl @Inject constructor(
     private val remoteDataSource: CharactersRemoteDataSource, private val database: AppDatabase
 ) : CharactersRepository {
 
+    @Deprecated("getCharacters com Paging Source")
     override fun getCharacters(query: String): PagingSource<Int, Character> {
         return CharactersPagingSource(remoteDataSource, query)
     }

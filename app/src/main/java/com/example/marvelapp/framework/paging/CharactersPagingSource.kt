@@ -5,6 +5,7 @@ import androidx.paging.PagingState
 import com.example.core.data.repository.CharactersRemoteDataSource
 import com.example.core.domain.model.Character
 
+@Deprecated("Clase usada para criar PagingSource")
 class CharactersPagingSource(
     private val remoteDataSource: CharactersRemoteDataSource,
     private val query: String

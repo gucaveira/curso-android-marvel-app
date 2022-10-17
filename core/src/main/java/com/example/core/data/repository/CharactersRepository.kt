@@ -9,6 +9,7 @@ import com.example.core.domain.model.Event
 import kotlinx.coroutines.flow.Flow
 
 interface CharactersRepository {
+    @Deprecated("getCharacters com Paging Source")
     fun getCharacters(query: String): PagingSource<Int, Character>
     fun getCachedCharacters(
         query: String,
