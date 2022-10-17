@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -30,7 +31,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CharactersFragment : Fragment(), SearchView.OnQueryTextListener,
+class CharactersFragment : Fragment(), MenuProvider, SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener {
 
     private var _binding: FragmentCharactersBinding? = null
@@ -73,6 +74,8 @@ class CharactersFragment : Fragment(), SearchView.OnQueryTextListener,
         initCharactersAdapter()
         observeInitialLoadState()
         observeSortingData()
+        val menuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         viewModel.state.observe(viewLifecycleOwner) { uiState ->
             when (uiState) {
@@ -84,11 +87,6 @@ class CharactersFragment : Fragment(), SearchView.OnQueryTextListener,
             }
         }
         viewModel.searchCharacters()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     private fun initCharactersAdapter() {
@@ -182,20 +180,18 @@ class CharactersFragment : Fragment(), SearchView.OnQueryTextListener,
         })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.menuSort -> {
                 findNavController().navigate(R.id.action_charactersFragment_to_sortFragment)
                 true
             }
-            else -> {
-                super.onOptionsItemSelected(item)
-            }
+            else -> false
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.characters_menu_items, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.characters_menu_items, menu)
 
         val searchItem = menu.findItem(R.id.menu_search)
         searchView = searchItem.actionView as SearchView
