@@ -18,6 +18,8 @@ import com.example.marvelapp.presentation.characters.adapter.CharactersViewHolde
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -36,7 +38,7 @@ class CharactersFragmentTest {
 
     private lateinit var server: MockWebServer
 
-    val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+    private val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
     @Before
     fun setUp() {
@@ -49,9 +51,9 @@ class CharactersFragmentTest {
     }
 
     @Test
-    fun shouldShowCharacters_whenViewIsCreated() {
+    fun shouldShowCharacters_whenViewIsCreated(): Unit = runBlocking {
         server.enqueue(MockResponse().setBody("characters_page1.json".asJsonString()))
-
+        delay(500)
         onView(
             withId(R.id.recyclerCharacters)
         ).check(
@@ -60,19 +62,20 @@ class CharactersFragmentTest {
     }
 
     @Test
-    fun shouldLoadMoreCharacters_WhenNewPageRequested() {
-        //arrage
+    fun shouldLoadMoreCharacters_WhenNewPageRequested(): Unit = runBlocking {
+        //arrange
         with(server) {
             enqueue(MockResponse().setBody("characters_page1.json".asJsonString()))
             enqueue(MockResponse().setBody("characters_page2.json".asJsonString()))
         }
 
+        delay(500)
+
         //action
         onView(
             withId(R.id.recyclerCharacters)
         ).perform(
-            RecyclerViewActions
-                .scrollToPosition<CharactersViewHolder>(20)
+            RecyclerViewActions.scrollToPosition<CharactersViewHolder>(20)
         )
 
         //Assert
@@ -84,9 +87,11 @@ class CharactersFragmentTest {
     }
 
     @Test
-    fun shouldShowErrorView_whenReceiveAnErrorFromApi() {
+    fun shouldShowErrorView_whenReceiveAnErrorFromApi(): Unit = runBlocking {
         //Arrange
         server.enqueue(MockResponse().setResponseCode(404))
+
+        delay(500)
 
         onView(
             withId(R.id.textInitialLoadingError)
