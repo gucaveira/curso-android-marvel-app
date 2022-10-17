@@ -59,6 +59,12 @@ class CharactersViewModel @Inject constructor(
         action.value = Action.Sort
     }
 
+    fun closeSearch() {
+        if (currentSearchQuery.isNotEmpty()) {
+            currentSearchQuery = ""
+        }
+    }
+
     sealed class UiState {
         data class SearchResult(val data: PagingData<Character>) : UiState()
     }
