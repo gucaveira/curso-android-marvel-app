@@ -214,7 +214,7 @@ class DetailViewModelTest {
             verify(favoriteUiActionStateObserver).onChanged(isA<FavoriteUiActionStateLiveData.UiState.Icon>())
             val uiState =
                 viewModel.favorite.state.value as FavoriteUiActionStateLiveData.UiState.Icon
-            assertEquals(R.drawable.ic_favorite_checked, uiState.icon)
+            assertEquals(R.drawable.ic_favorite_checked, uiState.isFavorite)
         }
 
     @Test
@@ -233,7 +233,7 @@ class DetailViewModelTest {
             verify(favoriteUiActionStateObserver).onChanged(isA<FavoriteUiActionStateLiveData.UiState.Icon>())
             val uiState =
                 viewModel.favorite.state.value as FavoriteUiActionStateLiveData.UiState.Icon
-            assertEquals(R.drawable.ic_favorite_unchecked, uiState.icon)
+            assertEquals(R.drawable.ic_favorite_unchecked, uiState.isFavorite)
         }
 
     @Test
@@ -259,7 +259,7 @@ class DetailViewModelTest {
             verify(favoriteUiActionStateObserver).onChanged(isA<FavoriteUiActionStateLiveData.UiState.Icon>())
             val uiState =
                 viewModel.favorite.state.value as FavoriteUiActionStateLiveData.UiState.Icon
-            assertEquals(R.drawable.ic_favorite_checked, uiState.icon)
+            assertEquals(R.drawable.ic_favorite_checked, uiState.isFavorite)
         }
 
     @Test
@@ -285,6 +285,6 @@ class DetailViewModelTest {
             verify(favoriteUiActionStateObserver).onChanged(isA<FavoriteUiActionStateLiveData.UiState.Icon>())
             val uiState =
                 viewModel.favorite.state.value as FavoriteUiActionStateLiveData.UiState.Icon
-            assertEquals(R.drawable.ic_favorite_unchecked, uiState.icon)
+            assertEquals(R.drawable.ic_favorite_unchecked, uiState.isFavorite)
         }
 }

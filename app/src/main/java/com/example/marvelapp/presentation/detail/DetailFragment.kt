@@ -5,13 +5,15 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.example.marvelapp.databinding.FragmentDetailBinding
 import com.example.marvelapp.framework.imageLoader.ImageLoader
-import com.example.marvelapp.presentation.detail.extensions.showShortToast
+import com.example.marvelapp.presentation.FavoriteButton
 import com.example.marvelapp.presentation.detail.viewmodel.DetailViewModel
 import com.example.marvelapp.presentation.detail.viewmodel.FavoriteUiActionStateLiveData
 import com.example.marvelapp.presentation.detail.viewmodel.UiActionStateLiveData
@@ -32,7 +34,7 @@ class DetailFragment : Fragment() {
     private val args by navArgs<DetailFragmentArgs>()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ) = FragmentDetailBinding.inflate(inflater, container, false).apply {
         _binding = this
     }.root
@@ -60,11 +62,13 @@ class DetailFragment : Fragment() {
                     setShimmerVisibility(true)
                     FLIPPER_CHILD_POSITION_LOADING
                 }
+
                 is UiActionStateLiveData.UiState.Success -> {
                     setRecyclerView(uiState)
                     setShimmerVisibility(false)
                     FLIPPER_CHILD_POSITION_DETAIL
                 }
+
                 is UiActionStateLiveData.UiState.Error -> {
                     binding.includeErrorView.buttonRetry.setOnClickListener {
                         viewModel.categories.load(detailViewArg.characterId)
@@ -72,6 +76,7 @@ class DetailFragment : Fragment() {
                     setShimmerVisibility(false)
                     FLIPPER_CHILD_POSITION_ERROR
                 }
+
                 UiActionStateLiveData.UiState.Empty -> FLIPPER_CHILD_POSITION_EMPTY
             }
 
@@ -82,23 +87,15 @@ class DetailFragment : Fragment() {
         viewModel.favorite.run {
             checkFavorite(detailViewArg.characterId)
 
-            binding.imageFavoriteIcon.setOnClickListener {
-                update(detailViewArg)
-            }
+            /*  binding.imageFavoriteIcon.setOnClickListener {
+                  update(detailViewArg)
+              }*/
 
-            state.observe(viewLifecycleOwner) { uiState ->
-                binding.flipperFavorite.displayedChild = when (uiState) {
-                    FavoriteUiActionStateLiveData.UiState.Loading -> FLIPPER_FAVORITE_CHILD_POSITION_LOADING
-                    is FavoriteUiActionStateLiveData.UiState.Icon -> {
-                        binding.imageFavoriteIcon.setImageResource(uiState.icon)
-                        FLIPPER_FAVORITE_CHILD_POSITION_IMAGE
-                    }
 
-                    is FavoriteUiActionStateLiveData.UiState.Error -> {
-                        showShortToast(uiState.messageResId)
-                        FLIPPER_FAVORITE_CHILD_POSITION_IMAGE
-                    }
-                }
+
+            binding.buttonFavorite.setContent {
+                val uiState by state.observeAsState(FavoriteUiActionStateLiveData.UiState.Icon(false))
+                FavoriteButton(uiState, onClick = { update(detailViewArg) })
             }
         }
     }

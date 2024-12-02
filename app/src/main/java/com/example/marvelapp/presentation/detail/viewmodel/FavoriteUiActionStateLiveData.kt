@@ -1,6 +1,5 @@
 package com.example.marvelapp.presentation.detail.viewmodel
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
@@ -36,7 +35,8 @@ class FavoriteUiActionStateLiveData(
                             if (isFavorite) {
                                 currentFavoriteIcon = R.drawable.ic_favorite_checked
                             }
-                            emitFavoriteIcon()
+                            emit(UiState.Icon(isFavorite))
+
                         },
                         error = {
 
@@ -51,7 +51,8 @@ class FavoriteUiActionStateLiveData(
                                 emit(UiState.Loading)
                             }, success = {
                                 currentFavoriteIcon = R.drawable.ic_favorite_checked
-                                emitFavoriteIcon()
+                                emit(UiState.Icon(true))
+
                             }, error = {
                                 emit(UiState.Error(R.string.error_add_favorite))
                             })
@@ -69,7 +70,8 @@ class FavoriteUiActionStateLiveData(
                             },
                             success = {
                                 currentFavoriteIcon = R.drawable.ic_favorite_unchecked
-                                emitFavoriteIcon()
+                                emit(UiState.Icon(false))
+
                             },
                             error = {
                                 emit(UiState.Error(R.string.remove_favorite))
@@ -83,7 +85,7 @@ class FavoriteUiActionStateLiveData(
     }
 
     private suspend fun LiveDataScope<UiState>.emitFavoriteIcon() {
-        emit(UiState.Icon(currentFavoriteIcon))
+       // emit(UiState.Icon(currentFavoriteIcon))
     }
 
     fun checkFavorite(characterId: Int) {
@@ -98,7 +100,7 @@ class FavoriteUiActionStateLiveData(
 
     sealed class UiState {
         object Loading : UiState()
-        data class Icon(@DrawableRes val icon: Int) : UiState()
+        data class Icon(val isFavorite: Boolean) : UiState()
         data class Error(@StringRes val messageResId: Int) : UiState()
     }
 
