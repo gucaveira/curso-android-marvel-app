@@ -7,7 +7,9 @@ project.afterEvaluate {
 }
 
 detekt {
-    toolVersion = "$detekt_version"
+
+    //TODO("add essa versao arquivo libs.version")
+    toolVersion = "1.18.0"
     def inputDirFiles = []
     rootProject.subprojects.each { module ->
         if (module.name != "testing") {
@@ -22,17 +24,17 @@ detekt {
     reports {
         xml {
             enabled = true
-            destination = file("$buildDir/reports/detekt/detekt.xml")
+            destination = file(layout.buildDirectory.dir("/reports/detekt/detekt.xml").get())
         }
 
         html {
             enabled = true
-            destination = file("$buildDir/reports/detekt/detekt.html")
+            destination = file(layout.buildDirectory.dir("/reports/detekt/detekt.html").get())
         }
 
         txt {
             enabled = true
-            destination = file("$buildDir/reports/detekt/detekt.txt")
+            destination = file(layout.buildDirectory.dir("/reports/detekt/detekt.txt").get())
         }
     }
 }
