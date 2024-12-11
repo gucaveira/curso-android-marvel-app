@@ -12,7 +12,6 @@ plugins {
     alias(libs.plugins.devtools.ksp)
 }
 
-apply(from = "../config/detekt/detekt.gradle")
 
 val apikeyPropertiesFile = rootProject.file("apikey.properties")
 val apikeyProperties = Properties()

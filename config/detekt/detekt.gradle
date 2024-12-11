@@ -1,4 +1,6 @@
-apply plugin: "io.gitlab.arturbosch.detekt"
+plygins {
+    alias(libs.plugins.detekt)
+}
 
 project.afterEvaluate {
     tasks.named("preBuild") {
@@ -8,8 +10,7 @@ project.afterEvaluate {
 
 detekt {
 
-    //TODO("add essa versao arquivo libs.version")
-    toolVersion = "1.18.0"
+    toolVersion = libs.versions.detekt.version.get()
     def inputDirFiles = []
     rootProject.subprojects.each { module ->
         if (module.name != "testing") {
