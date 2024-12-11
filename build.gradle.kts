@@ -1,10 +1,13 @@
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.18.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
-    id("org.jetbrains.kotlin.android") version "2.0.0" apply false
-    id("com.google.dagger.hilt.android") version "2.52" apply false
-    id("androidx.navigation.safeargs") version "2.7.0" apply false
-    id("com.android.application") version "8.7.2" apply false
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.dagger.hilt) apply false
+    alias(libs.plugins.navigation.safeargs) apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.devtools.ksp) apply false
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
 }
 
 tasks.register<Delete>("clean") {

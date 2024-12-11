@@ -2,14 +2,14 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    // id ("com.google.gms.google-services")
-    id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
-    id("androidx.navigation.safeargs")
-    id("kotlin-parcelize")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.navigation.safeargs)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.devtools.ksp)
 }
 
 apply(from = "../config/detekt/detekt.gradle")
@@ -90,7 +90,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "21"
+        jvmTarget = JavaVersion.VERSION_21.toString()
         freeCompilerArgs += listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
 
@@ -103,103 +103,89 @@ android {
 dependencies {
 
     implementation(project(":core"))
+    testImplementation(project(":testing"))
 
     // AndroidX
-    implementation("androidx.core:core-ktx:1.13.0")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
 
-    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
-    implementation(composeBom)
+    implementation(libs.androidx.compose.material3)
+    implementation(platform(libs.androidx.compose.bom))
 
     // Android Studio Preview support
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation(libs.androidx.compose.preview)
+    debugImplementation(libs.androidx.compose.tooling)
 
     // Runtime do Compose
-    implementation("androidx.compose.runtime:runtime")
+    implementation(libs.androidx.compose.runtime)
 
     // Optional - Integration with activities
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation(libs.androidx.compose.activity)
     // Optional - Integration with ViewModels
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+    implementation(libs.androidx.compose.lifecycle.viewmodel)
     // Optional - Integration with LiveData
-    implementation("androidx.compose.runtime:runtime-livedata")
+    implementation(libs.androidx.compose.runtime.livedata)
 
     // Material design
-    implementation("com.google.android.material:material:1.12.0")
+    implementation(libs.android.material)
     // implementation("androidx.legacy:legacy-support-v4:1.0.0"
 
     // Navigation
-    val nav_version = "2.7.7"
-    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     // ViewModel and LiveData
-    val lifecycle_version = "2.8.3"
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
+    implementation(libs.bundles.androidx.lifecycle)
 
-    val coroutines = "1.7.3"
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines")
-
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
 
     // Dagger Hilt
-    val hilt_version = "2.50"
-    implementation("com.google.dagger:hilt-android:$hilt_version")
-    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
+    implementation(libs.dagger.hilt.android)
+    ksp(libs.dagger.hilt.android.compiler)
 
     // Room
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-ktx:$room_version")
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("androidx.room:room-paging:$room_version")
-    //kapt("androidx.room:room-compiler:$room_version")
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.paging)
+    ksp(libs.androidx.room.compiler)
 
     // Paging3
-    val paging_version = "3.3.0"
-    implementation("androidx.paging:paging-runtime-ktx:$paging_version")
+    implementation(libs.androidx.paging.runtime.ktx)
 
     // Glide
-    val glide_version = "4.13.2"
-    implementation("com.github.bumptech.glide:glide:$glide_version")
-    //kapt("com.github.bumptech.glide:compiler:$glide_version")
+    implementation(libs.glide)
+    ksp(libs.glide.compiler)
 
     // Other Libs
-    implementation("com.facebook.shimmer:shimmer:0.5.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation(libs.shimmer)
+    implementation(libs.gson)
+    implementation(libs.androidx.datastore.preferences)
 
     //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:30.4.1"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics.ktx)
 
     // Unit tests
-    testImplementation(project(":testing"))
-    testImplementation("androidx.room:room-testing:$room_version")
+    testImplementation(libs.androidx.room.testing)
 
     // Instrumentation tests
-    val espresso_version = "3.4.0"
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:$espresso_version")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:$espresso_version")
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.contrib)
 
     //orchestrator
-    androidTestImplementation("androidx.test:runner:1.6.1")
-    androidTestUtil("androidx.test:orchestrator:1.5.0")
+    androidTestImplementation(libs.androidx.orchestrator.test.runner)
+    androidTestUtil(libs.androidx.orchestrator)
 
-    val fragment_version = "1.5.3"
-    debugImplementation("androidx.fragment:fragment-testing:$fragment_version")
+    debugImplementation(libs.androidx.fragment.testing)
 
-    androidTestImplementation("com.google.dagger:hilt-android-testing:$hilt_version")
-    //kaptAndroidTest("com.google.dagger:hilt-android-compiler:$hilt_version")
+    androidTestImplementation(libs.dagger.hilt.android.testing)
+    kspAndroidTest(libs.dagger.hilt.android.compiler)
 
-    androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.9.3")
+    androidTestImplementation(libs.okhttp3.mockwebserver)
 
-    val coroutines_version = "1.6.4"
-    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version")
-    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
+    androidTestImplementation(libs.coroutines.test)
+    androidTestImplementation(libs.androidx.navigation.testing)
 }

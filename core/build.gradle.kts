@@ -12,28 +12,23 @@ java {
 dependencies {
 
     // OkHttp
-    api(platform("com.squareup.okhttp3:okhttp-bom:4.9.0"))
-    api("com.squareup.okhttp3:okhttp")
-    api("com.squareup.okhttp3:logging-interceptor")
+    api(libs.bundles.okhttp3)
 
     // Retrofit
-    val retrofit_version = "2.9.0"
-    api("com.squareup.retrofit2:retrofit:$retrofit_version")
-    api("com.squareup.retrofit2:converter-gson:$retrofit_version")
+    api(libs.squareup.retrofit)
+    api(libs.squareup.retrofit.converter.gson)
 
     //Gson
-    api("com.google.code.gson:gson:2.9.1")
+    api(libs.gson)
 
     //Paging3 Common
-    val paging_version = "3.3.0"
-    implementation("androidx.paging:paging-common-ktx:$paging_version")
+    implementation(libs.androidx.paging.common.ktx)
 
     //Javax Inject
-    implementation("javax.inject:javax.inject:1")
+    implementation(libs.javax.inject)
 
     //Coroutines cores
-    val coroutines_version = "1.6.4"
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    api(libs.coroutines.core)
 
     //test unit
     testImplementation(project(":testing"))
